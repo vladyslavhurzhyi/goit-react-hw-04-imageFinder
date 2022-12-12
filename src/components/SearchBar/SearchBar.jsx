@@ -4,7 +4,6 @@ import { AiOutlineSearch } from 'react-icons/ai';
 
 export class SearchBar extends Component {
   state = {
-    query: null,
     inputValue: '',
   };
 
@@ -14,32 +13,12 @@ export class SearchBar extends Component {
     });
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
-
-    if (this.state.inputValue.trim() === '') {
-      return;
-    }
-
-    this.setState(prevState => {
-      return {
-        query: prevState.inputValue,
-      };
-    });
-
-    this.props.getQuery(this.state.inputValue);
-
-    this.setState({
-      inputValue: '',
-    });
-  }
-
   render() {
     return (
       <SearchbaWrap>
         <Form
           onSubmit={event => {
-            this.handleSubmit(event);
+            this.props.handleSubmit(event);
           }}
         >
           <Button type="submit">
@@ -52,6 +31,7 @@ export class SearchBar extends Component {
             autoFocus
             placeholder="Search images and photos"
             value={this.state.inputValue}
+            name="query"
             onChange={e => {
               this.changeInput(e);
             }}

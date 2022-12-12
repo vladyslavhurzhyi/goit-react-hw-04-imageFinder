@@ -7,25 +7,46 @@ import { SearchBar } from './SearchBar/SearchBar';
 
 export class App extends Component {
   state = {
-    query: null,
+    query: '',
+    page: 1,
     images: [],
     totalHits: null,
     error: null,
-    page: 1,
   };
 
-  getQuery = async query => {
-    this.setState({
-      searchQuery: query,
-    });
+  // удалить если не надо!!!!!!!!!!
+  // getQuery = async query => {
+  //   this.setState({
+  //     searchQuery: query,
+  //   });
 
-    await this.getImages(query);
-  };
+  //   await this.getImages(query);
+  // };
 
-  resetStateImage() {
+  handleSubmit(event) {
+    event.preventDefault();
+
+    if (
+      event.target.elements.query.value.trim() === '' ||
+      event.target.elements.query.value === this.state.query
+    ) {
+      return;
+    }
+
     this.setState({
+      page: 1,
+      query: event.target.elements.query.value,
       images: [],
     });
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (
+      prevState.page !== this.state.page ||
+      prevState.query !== this.state.query
+    ) {
+      this.getImages(this.state.query);
+    }
   }
 
   async getImages(query) {
@@ -46,30 +67,43 @@ export class App extends Component {
         });
       }
 
-      return this.setState({
-        images: hits,
-        totalHits: totalHits,
-      });
+      if (this.state.page > 1) {
+        this.setState(prevState => {
+          return {
+            images: [...prevState.images, ...hits],
+            totalHits: totalHits,
+          };
+        });
+      } else
+        this.setState({
+          images: hits,
+          totalHits: totalHits,
+        });
     } catch (error) {
-      this.resetStateImage();
       this.setState({
         error: 'Что-то пошло не так...',
       });
     }
   }
 
+  loadMore = () => {
+    this.setState(prevState => {
+      return { page: prevState.page + 1 };
+    });
+  };
+
   render() {
     const { error, images } = this.state;
     return (
       <AppWrap>
         <SearchBar
-          getQuery={query => {
-            this.getQuery(query);
+          handleSubmit={event => {
+            this.handleSubmit(event);
           }}
         />
         {images && <ImageGallery images={images} />}
         {error && <p style={{ color: 'red' }}> {error} </p>}
-        {images.length > 0 && <ButtonStyled />}
+        {images.length > 0 && <ButtonStyled onClickLoadMore={this.loadMore} />}
       </AppWrap>
     );
   }
