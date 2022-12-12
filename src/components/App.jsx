@@ -3,6 +3,7 @@ import { Component } from 'react';
 import { AppWrap } from './App.styled';
 import { ButtonStyled } from './Button/Button';
 import { ImageGallery } from './ImageGallery/ImageGallery';
+import { Loader } from './Loader/Loader';
 import { SearchBar } from './SearchBar/SearchBar';
 
 export class App extends Component {
@@ -12,16 +13,18 @@ export class App extends Component {
     images: [],
     totalHits: null,
     error: null,
+    isLoading: false,
+    showModal: false,
   };
 
-  // удалить если не надо!!!!!!!!!!
-  // getQuery = async query => {
-  //   this.setState({
-  //     searchQuery: query,
-  //   });
-
-  //   await this.getImages(query);
-  // };
+  componentDidUpdate(_, prevState) {
+    if (
+      prevState.page !== this.state.page ||
+      prevState.query !== this.state.query
+    ) {
+      this.getImages(this.state.query);
+    }
+  }
 
   handleSubmit(event) {
     event.preventDefault();
@@ -40,16 +43,14 @@ export class App extends Component {
     });
   }
 
-  componentDidUpdate(_, prevState) {
-    if (
-      prevState.page !== this.state.page ||
-      prevState.query !== this.state.query
-    ) {
-      this.getImages(this.state.query);
-    }
-  }
+  showModal = () => {
+    this.setState(prevState => {
+      return { showModal: !prevState.showModal };
+    });
+  };
 
   async getImages(query) {
+    this.setState({ isLoading: true });
     try {
       const { data: response } = await FetchPixabayImage(
         query,
@@ -83,6 +84,8 @@ export class App extends Component {
       this.setState({
         error: 'Что-то пошло не так...',
       });
+    } finally {
+      this.setState({ isLoading: false });
     }
   }
 
@@ -101,7 +104,8 @@ export class App extends Component {
             this.handleSubmit(event);
           }}
         />
-        {images && <ImageGallery images={images} />}
+        {images && <ImageGallery images={images} openModal={this.showModal} />}
+        {this.state.isLoading && <Loader />}
         {error && <p style={{ color: 'red' }}> {error} </p>}
         {images.length > 0 && <ButtonStyled onClickLoadMore={this.loadMore} />}
       </AppWrap>
