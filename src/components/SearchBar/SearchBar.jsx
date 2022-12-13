@@ -13,12 +13,17 @@ export class SearchBar extends Component {
     });
   }
 
+  resetInput() {
+    this.setState({ inputValue: '' });
+  }
+
   render() {
     return (
       <SearchbaWrap>
         <Form
           onSubmit={event => {
             this.props.handleSubmit(event);
+            this.resetInput();
           }}
         >
           <Button type="submit">

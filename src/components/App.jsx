@@ -56,14 +56,11 @@ export class App extends Component {
   };
 
   async getImages(query) {
+    const { page } = this.state;
     this.setState({ isLoading: true });
     try {
-      const { data: response } = await FetchPixabayImage(
-        query,
-        this.state.page
-      );
+      const { data: response } = await FetchPixabayImage(query, page);
 
-      console.log(response);
       const { hits, totalHits } = response;
 
       if (totalHits < 1) {
@@ -76,7 +73,7 @@ export class App extends Component {
         });
       }
 
-      if (this.state.page > 1) {
+      if (page > 1) {
         this.setState(prevState => {
           return {
             images: [...prevState.images, ...hits],
@@ -103,13 +100,9 @@ export class App extends Component {
     });
   };
 
-  // lastPage = () => {
-  //   return Math.ceil(this.state.totalHits / 12) > this.state.page;
-  // };
-
   render() {
     const lastPage = Math.ceil(this.state.totalHits / 12) > this.state.page;
-    const { error, images } = this.state;
+    const { error, images, modalImage } = this.state;
 
     return (
       <AppWrap>
@@ -119,10 +112,7 @@ export class App extends Component {
           }}
         />
         {this.state.showModal && (
-          <Modal
-            showModal={this.showModal}
-            largeImage={this.state.modalImage}
-          />
+          <Modal showModal={this.showModal} largeImage={modalImage} />
         )}
         {images && (
           <ImageGallery
