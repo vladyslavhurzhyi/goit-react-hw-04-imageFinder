@@ -1,13 +1,17 @@
 import { GalleryItem, GalleryItemImage } from './ImageGalleryItem.styled';
 
-export const ImageGalleryItem = ({ imagesData: data }, showModal) => {
+export const ImageGalleryItem = ({
+  imagesData: data,
+  showModal,
+  getLargeImg,
+}) => {
   return data.map(item => {
     return (
       <GalleryItem key={item.id}>
         <GalleryItemImage
           src={item.webformatURL}
-          alt={item.webformatURL}
           onClick={() => {
+            getLargeImg(item.largeImageURL);
             showModal();
           }}
         />

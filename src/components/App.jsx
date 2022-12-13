@@ -4,6 +4,7 @@ import { AppWrap } from './App.styled';
 import { ButtonStyled } from './Button/Button';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
+import { Modal } from './Modal/Modal';
 import { SearchBar } from './SearchBar/SearchBar';
 
 export class App extends Component {
@@ -15,6 +16,7 @@ export class App extends Component {
     error: null,
     isLoading: false,
     showModal: false,
+    modalImage: {},
   };
 
   componentDidUpdate(_, prevState) {
@@ -43,6 +45,10 @@ export class App extends Component {
     });
   }
 
+  getLargeImage = largeImage => {
+    this.setState({ modalImage: largeImage });
+  };
+
   showModal = () => {
     this.setState(prevState => {
       return { showModal: !prevState.showModal };
@@ -56,6 +62,8 @@ export class App extends Component {
         query,
         this.state.page
       );
+
+      console.log(response);
       const { hits, totalHits } = response;
 
       if (totalHits < 1) {
@@ -95,8 +103,14 @@ export class App extends Component {
     });
   };
 
+  // lastPage = () => {
+  //   return Math.ceil(this.state.totalHits / 12) > this.state.page;
+  // };
+
   render() {
+    const lastPage = Math.ceil(this.state.totalHits / 12) > this.state.page;
     const { error, images } = this.state;
+
     return (
       <AppWrap>
         <SearchBar
@@ -104,10 +118,24 @@ export class App extends Component {
             this.handleSubmit(event);
           }}
         />
-        {images && <ImageGallery images={images} openModal={this.showModal} />}
+        {this.state.showModal && (
+          <Modal
+            showModal={this.showModal}
+            largeImage={this.state.modalImage}
+          />
+        )}
+        {images && (
+          <ImageGallery
+            images={images}
+            openModal={this.showModal}
+            getLargeImg={this.getLargeImage}
+          />
+        )}
         {this.state.isLoading && <Loader />}
         {error && <p style={{ color: 'red' }}> {error} </p>}
-        {images.length > 0 && <ButtonStyled onClickLoadMore={this.loadMore} />}
+        {images.length > 0 && lastPage && (
+          <ButtonStyled onClickLoadMore={this.loadMore} />
+        )}
       </AppWrap>
     );
   }

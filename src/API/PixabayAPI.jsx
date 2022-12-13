@@ -12,6 +12,7 @@ export const FetchPixabayImage = async (query, page) => {
       image_type: 'photo',
       orientation: 'horizontal',
       page: page,
+      per_page: 12,
     },
   });
 
