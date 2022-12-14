@@ -29,12 +29,7 @@ export class App extends Component {
   }
 
   handleSubmit(event) {
-    event.preventDefault();
-
-    if (
-      event.target.elements.query.value.trim() === '' ||
-      event.target.elements.query.value === this.state.query
-    ) {
+    if (event.target.elements.query.value === this.state.query) {
       return;
     }
 
@@ -45,13 +40,12 @@ export class App extends Component {
     });
   }
 
-  getLargeImage = largeImage => {
-    this.setState({ modalImage: largeImage });
-  };
-
-  showModal = () => {
+  showModal = largeImage => {
     this.setState(prevState => {
-      return { showModal: !prevState.showModal };
+      return {
+        showModal: !prevState.showModal,
+        modalImage: largeImage,
+      };
     });
   };
 
@@ -73,18 +67,12 @@ export class App extends Component {
         });
       }
 
-      if (page > 1) {
-        this.setState(prevState => {
-          return {
-            images: [...prevState.images, ...hits],
-            totalHits: totalHits,
-          };
-        });
-      } else
-        this.setState({
-          images: hits,
+      this.setState(prevState => {
+        return {
+          images: [...prevState.images, ...hits],
           totalHits: totalHits,
-        });
+        };
+      });
     } catch (error) {
       this.setState({
         error: 'Что-то пошло не так...',
@@ -114,13 +102,7 @@ export class App extends Component {
         {this.state.showModal && (
           <Modal showModal={this.showModal} largeImage={modalImage} />
         )}
-        {images && (
-          <ImageGallery
-            images={images}
-            openModal={this.showModal}
-            getLargeImg={this.getLargeImage}
-          />
-        )}
+        {images && <ImageGallery images={images} openModal={this.showModal} />}
         {this.state.isLoading && <Loader />}
         {error && <p style={{ color: 'red' }}> {error} </p>}
         {images.length > 0 && lastPage && (

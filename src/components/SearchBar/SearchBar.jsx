@@ -13,7 +13,15 @@ export class SearchBar extends Component {
     });
   }
 
-  resetInput() {
+  inputSubmit(event) {
+    event.preventDefault();
+
+    if (event.target.elements.query.value.trim() === '') {
+      return;
+    }
+
+    this.props.handleSubmit(event);
+
     this.setState({ inputValue: '' });
   }
 
@@ -22,8 +30,7 @@ export class SearchBar extends Component {
       <SearchbaWrap>
         <Form
           onSubmit={event => {
-            this.props.handleSubmit(event);
-            this.resetInput();
+            this.inputSubmit(event);
           }}
         >
           <Button type="submit">
