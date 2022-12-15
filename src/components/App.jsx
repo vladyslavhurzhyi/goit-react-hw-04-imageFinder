@@ -53,9 +53,7 @@ export class App extends Component {
     const { page } = this.state;
     this.setState({ isLoading: true });
     try {
-      const { data: response } = await FetchPixabayImage(query, page);
-
-      const { hits, totalHits } = response;
+      const { hits, totalHits } = await FetchPixabayImage(query, page);
 
       if (totalHits < 1) {
         this.setState({

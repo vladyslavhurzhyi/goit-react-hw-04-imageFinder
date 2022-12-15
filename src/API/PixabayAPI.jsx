@@ -16,5 +16,13 @@ export const FetchPixabayImage = async (query, page) => {
     },
   });
 
-  return response;
+  const hits = response.data.hits.map(
+    ({ id, webformatURL, largeImageURL }) => ({
+      id,
+      webformatURL,
+      largeImageURL,
+    })
+  );
+
+  return { hits, totalHits: response.data.totalHits };
 };
