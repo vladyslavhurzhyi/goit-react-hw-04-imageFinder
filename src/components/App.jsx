@@ -1,5 +1,5 @@
 import { FetchPixabayImage } from 'API/PixabayAPI';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { AppWrap } from './App.styled';
 import { ButtonStyled } from './Button/Button';
 import { ImageGallery } from './ImageGallery/ImageGallery';
@@ -7,106 +7,101 @@ import { Loader } from './Loader/Loader';
 import { Modal } from './Modal/Modal';
 import { SearchBar } from './SearchBar/SearchBar';
 
-export class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    images: [],
-    totalHits: null,
-    error: null,
-    isLoading: false,
-    showModal: false,
-    modalImage: {},
-  };
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [totalHits, setTotalHits] = useState(null);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalImage, setModalImage] = useState({});
 
-  componentDidUpdate(_, prevState) {
-    if (
-      prevState.page !== this.state.page ||
-      prevState.query !== this.state.query
-    ) {
-      this.getImages(this.state.query);
-    }
-  }
+  // componentDidUpdate(_, prevState) {
+  //   if (
+  //     prevState.page !== this.state.page ||
+  //     prevState.query !== this.state.query
+  //   ) {
+  //     this.getImages(this.state.query);
+  //   }
+  // }
 
-  handleSubmit(event) {
-    if (event.target.elements.query.value === this.state.query) {
+  const handleSubmit = event => {
+    if (event.target.elements.query.value === query) {
       return;
     }
-
-    this.setState({
-      page: 1,
-      query: event.target.elements.query.value,
-      images: [],
-    });
-  }
-
-  showModal = largeImage => {
-    this.setState(prevState => {
-      return {
-        showModal: !prevState.showModal,
-        modalImage: largeImage,
-      };
-    });
+    setPage(1);
+    setQuery(event.target.elements.query.value);
+    setImages([]);
   };
 
-  async getImages(query) {
-    const { page } = this.state;
-    this.setState({ isLoading: true });
-    try {
-      const { hits, totalHits } = await FetchPixabayImage(query, page);
+  // handleSubmit(event) {
+  //   if (event.target.elements.query.value === this.state.query) {
+  //     return;
+  //   }
 
-      if (totalHits < 1) {
-        this.setState({
-          error: `${query} не найдено. Измените запрос.`,
-        });
-      } else {
-        this.setState({
-          error: null,
-        });
+  //   this.setState({
+  //     page: 1,
+  //     query: event.target.elements.query.value,
+  //     images: [],
+  //   });
+  // }
+
+  const openModal = largeImage => {
+    setShowModal(prevState => !prevState);
+    setModalImage(largeImage);
+  };
+
+  useEffect(() => {
+    async function getImages(query) {
+      if (!query) {
+        return;
       }
 
-      this.setState(prevState => {
-        return {
-          images: [...prevState.images, ...hits],
-          totalHits: totalHits,
-        };
-      });
-    } catch (error) {
-      this.setState({
-        error: 'Что-то пошло не так...',
-      });
-    } finally {
-      this.setState({ isLoading: false });
-    }
-  }
+      setIsLoading(true);
+      try {
+        const { hits, totalHits } = await FetchPixabayImage(query, page);
 
-  loadMore = () => {
-    this.setState(prevState => {
-      return { page: prevState.page + 1 };
-    });
+        if (totalHits < 1) {
+          setError(`${query} не найдено. Измените запрос.`);
+        } else {
+          setError(null);
+        }
+
+        setImages(prevState => {
+          return [...prevState, ...hits];
+        });
+        setTotalHits(totalHits);
+      } catch (error) {
+        setError('Что-то пошло не так...');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    getImages(query);
+  }, [page, query]);
+
+  const loadMore = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  render() {
-    const lastPage = Math.ceil(this.state.totalHits / 12) > this.state.page;
-    const { error, images, modalImage } = this.state;
+  const lastPage = Math.ceil(totalHits / 12) > page;
 
-    return (
-      <AppWrap>
-        <SearchBar
-          handleSubmit={event => {
-            this.handleSubmit(event);
-          }}
-        />
-        {this.state.showModal && (
-          <Modal showModal={this.showModal} largeImage={modalImage} />
-        )}
-        {images && <ImageGallery images={images} openModal={this.showModal} />}
-        {this.state.isLoading && <Loader />}
-        {error && <p style={{ color: 'red' }}> {error} </p>}
-        {images.length > 0 && lastPage && (
-          <ButtonStyled onClickLoadMore={this.loadMore} />
-        )}
-      </AppWrap>
-    );
-  }
-}
+  return (
+    <AppWrap>
+      <SearchBar
+        handleSubmit={event => {
+          handleSubmit(event);
+        }}
+      />
+      {showModal && <Modal showModal={openModal} largeImage={modalImage} />}
+      {images && <ImageGallery images={images} openModal={openModal} />}
+      {isLoading && <Loader />}
+      {error && <p style={{ color: 'red' }}> {error} </p>}
+      {images.length > 0 && lastPage && (
+        <ButtonStyled onClickLoadMore={loadMore} />
+      )}
+    </AppWrap>
+  );
+};
