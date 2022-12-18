@@ -1,55 +1,49 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { SearchbaWrap, Form, Button, Input } from './SearchBar.styled';
 import { AiOutlineSearch } from 'react-icons/ai';
 
-export class SearchBar extends Component {
-  state = {
-    inputValue: '',
+export const SearchBar = ({ handleSubmit }) => {
+  const [inputValue, setInputValue] = useState('');
+
+  const changeInput = e => {
+    setInputValue(e.target.value);
   };
 
-  changeInput(e) {
-    this.setState({
-      inputValue: e.target.value,
-    });
-  }
-
-  inputSubmit(event) {
+  const inputSubmit = event => {
     event.preventDefault();
 
     if (event.target.elements.query.value.trim() === '') {
       return;
     }
 
-    this.props.handleSubmit(event);
+    handleSubmit(event);
 
-    this.setState({ inputValue: '' });
-  }
+    setInputValue('');
+  };
 
-  render() {
-    return (
-      <SearchbaWrap>
-        <Form
-          onSubmit={event => {
-            this.inputSubmit(event);
+  return (
+    <SearchbaWrap>
+      <Form
+        onSubmit={event => {
+          inputSubmit(event);
+        }}
+      >
+        <Button type="submit">
+          <AiOutlineSearch size={20} />
+        </Button>
+
+        <Input
+          type="text"
+          autocomplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          value={inputValue}
+          name="query"
+          onChange={e => {
+            changeInput(e);
           }}
-        >
-          <Button type="submit">
-            <AiOutlineSearch size={20} />
-          </Button>
-
-          <Input
-            type="text"
-            autocomplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            value={this.state.inputValue}
-            name="query"
-            onChange={e => {
-              this.changeInput(e);
-            }}
-          />
-        </Form>
-      </SearchbaWrap>
-    );
-  }
-}
+        />
+      </Form>
+    </SearchbaWrap>
+  );
+};
