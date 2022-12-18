@@ -17,15 +17,6 @@ export const App = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalImage, setModalImage] = useState({});
 
-  // componentDidUpdate(_, prevState) {
-  //   if (
-  //     prevState.page !== this.state.page ||
-  //     prevState.query !== this.state.query
-  //   ) {
-  //     this.getImages(this.state.query);
-  //   }
-  // }
-
   const handleSubmit = event => {
     if (event.target.elements.query.value === query) {
       return;
@@ -34,18 +25,6 @@ export const App = () => {
     setQuery(event.target.elements.query.value);
     setImages([]);
   };
-
-  // handleSubmit(event) {
-  //   if (event.target.elements.query.value === this.state.query) {
-  //     return;
-  //   }
-
-  //   this.setState({
-  //     page: 1,
-  //     query: event.target.elements.query.value,
-  //     images: [],
-  //   });
-  // }
 
   const openModal = largeImage => {
     setShowModal(prevState => !prevState);
