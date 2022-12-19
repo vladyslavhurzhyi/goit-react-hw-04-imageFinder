@@ -17,12 +17,12 @@ export const App = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalImage, setModalImage] = useState({});
 
-  const handleSubmit = event => {
-    if (event.target.elements.query.value === query) {
+  const handleSubmit = searchQuery => {
+    if (searchQuery === query) {
       return;
     }
     setPage(1);
-    setQuery(event.target.elements.query.value);
+    setQuery(searchQuery);
     setImages([]);
   };
 
@@ -69,11 +69,7 @@ export const App = () => {
 
   return (
     <AppWrap>
-      <SearchBar
-        handleSubmit={event => {
-          handleSubmit(event);
-        }}
-      />
+      <SearchBar handleSubmit={handleSubmit} />
       {showModal && <Modal showModal={openModal} largeImage={modalImage} />}
       {images && <ImageGallery images={images} openModal={openModal} />}
       {isLoading && <Loader />}

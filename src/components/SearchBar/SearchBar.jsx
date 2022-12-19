@@ -16,18 +16,14 @@ export const SearchBar = ({ handleSubmit }) => {
       return;
     }
 
-    handleSubmit(event);
+    handleSubmit(event.target.elements.query.value);
 
     setInputValue('');
   };
 
   return (
     <SearchbaWrap>
-      <Form
-        onSubmit={event => {
-          inputSubmit(event);
-        }}
-      >
+      <Form onSubmit={inputSubmit}>
         <Button type="submit">
           <AiOutlineSearch size={20} />
         </Button>
@@ -39,9 +35,7 @@ export const SearchBar = ({ handleSubmit }) => {
           placeholder="Search images and photos"
           value={inputValue}
           name="query"
-          onChange={e => {
-            changeInput(e);
-          }}
+          onChange={changeInput}
         />
       </Form>
     </SearchbaWrap>
